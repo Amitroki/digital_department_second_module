@@ -1,16 +1,3 @@
-/* 
-Выполните заключение интерфейсов и классов, реализованных в работе 3 
-в пространство имён с названием Transport. 
-Добавьте ключевое слово, которое сделает namespace модулем. 
-При необходимости добавьте это ключевое слово 
-к другим элементам пространства имён.
-*/
-/* 
-Создайте декоратор, выполняющий блокировку изменения прототипа
-класса автомобиль. Необходимо проверить, осталась ли возможность
-добавления сторонних полей в объект после введения декоратора
-(проверка работоспособности).
-*/
 export namespace Transport {
     export enum OwnerDocumentType {
         Passport = "Паспорт",
@@ -94,6 +81,7 @@ export namespace Transport {
     export interface Car extends Vehicle {
         bodyType: BodyType;
         carType: CarType;
+        getCarInfo(): string;
     }
 
     function sealClass<T extends { new(...args: any[]): {} }>(constructor: T) {
@@ -149,6 +137,13 @@ export namespace Transport {
             this._carType = value;
         }
 
+        getCarInfo(): string {
+            return JSON.stringify({
+                bodyType: this.bodyType,
+                carClass: this.carType
+            });
+        }
+
         @uppercaseMethod
         displayAutoInfo(): string {
             let vehicleInf0 = super.displayVehicleInfo();
@@ -193,6 +188,7 @@ export namespace Transport {
         vehicles: T[];
         getAllVehicles(): T[];
         sortByModelDesc(): void;
+        findByOwnerDocument(series: string, number: string): T[];
     }
 
     export class VehicleStorageImpl<T extends Vehicle> implements VehicleStorage<T> {
@@ -208,7 +204,14 @@ export namespace Transport {
         }
 
         sortByModelDesc(): void {
-            this.vehicles.sort((a, b) => b.model.localeCompare(a.model)); // Сортировка по убыванию (Я -> А)
+            this.vehicles.sort((a, b) => b.model.localeCompare(a.model));
+        }
+
+        findByOwnerDocument(series: string, number: string): T[] {
+            return this.vehicles.filter(vehicle =>
+                vehicle.owner.documentSeries.toLowerCase() === series.toLowerCase() && 
+                vehicle.owner.documentNumber === number
+            );
         }
     }
 }
