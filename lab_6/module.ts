@@ -101,6 +101,18 @@ export namespace Transport {
         return constructor;
     }
 
+    function uppercaseMethod(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        const originalMethod = descriptor.value;
+        descriptor.value = function (...args: any[]) {
+            const result = originalMethod.apply(this, args);
+            if (typeof result === "string") {
+                return result.toUpperCase();
+            }
+            return result;
+        };
+        return descriptor;
+    }
+
     @sealClass
     export class CarImpl extends VehicleImpl implements Car {
         private _bodyType: BodyType;
@@ -135,6 +147,12 @@ export namespace Transport {
 
         set carType(value: CarType) {
             this._carType = value;
+        }
+
+        @uppercaseMethod
+        displayAutoInfo(): string {
+            let vehicleInf0 = super.displayVehicleInfo();
+            return vehicleInf0 + `Кузов: ${this._bodyType}, Класс: ${this._carType}`;
         }
     }
 
